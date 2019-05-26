@@ -12,14 +12,20 @@ namespace Exersice3
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
             routes.MapRoute(
-                name: "Default",
-                url: "{action}/{ip}/{port}",
-                defaults: new { controller = "Products", action = "Index", ip = UrlParameter.Optional, port = UrlParameter.Optional }
+                name: "Second",
+                url: "{action}/{ip}/{port}/{time}",
+                defaults: new { controller = "Products", action = "display", time = "0" }
             );
-   
-    
+            routes.MapRoute(
+                        name: "Default",
+                        url: "{action}/{id}",
+                        defaults: new { controller = "Products", action = "Index", id = UrlParameter.Optional }
+                    );
+
+
         }
     }
 }

@@ -6,23 +6,58 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Threading;
+using System.Web;
+using System.Web.Mvc;
 
 namespace Exersice3
 {
     public class Client
     {
+       
         private string ip;
         private int port;
         private IPEndPoint ep;
         private TcpClient client;
         private bool isConnect = false;
-        public Client(string ip, int port) {
+        private static Client instance = null;
+        private Models.FlightValue flightValue;
+        private Client() {        
+            flightValue = new Models.FlightValue();
+        }
+        public static Client Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Client();
+                }
+                return instance;
+            }
+        }
+
+        public Models.FlightValue flightValueP
+        {
+            get
+            {
+                return this.flightValue;
+            }
+            set
+            {
+                this.flightValue = value;
+            }
+        }
+
+        public const string SCENARIO_FILE = "~/App_Data/{0}.txt";           // The Path of the Secnario
+
+ 
+            public void connect(string ip, int port)
+        {
             this.ip = ip;
             this.port = port;
-        }
-        // Connect to client and read ip and port
-        public void connect()
-        {
+            Console.WriteLine(this.ip);
+            Console.WriteLine(this.port);
             if (!isConnect)
             {
                 try
@@ -50,27 +85,40 @@ namespace Exersice3
                 isConnect = false;
             }
         }
+
         // The function sent values to flight gear
-        public void sendCommand(string command)
+        public string readData()
         {
-            // check if string not empty 
-            if (command != "")
+            string result = "";
+            try
             {
-                try
-                {
-                    using (NetworkStream stream = client.GetStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                    using (StreamWriter writer = new StreamWriter(stream))
+                using (NetworkStream stream = client.GetStream())
+                using (StreamReader reader = new StreamReader(stream))
+                using (StreamWriter writer = new StreamWriter(stream))
+                { // read from flight gear while connect
+                    while (isConnection())
                     {
-                        // write to flight gear
-                        writer.WriteLine(command);
+                        string commandWrite = "get /position/longitude-deg";
+                        writer.WriteLine(commandWrite);
+                        writer.Flush();
+                        result = reader.ReadLine();
+                        string[] splitValues = result.Split('\'');
+                        flightValue.Lon = Convert.ToDouble(splitValues[1]);
+                        commandWrite = "get /position/latitude-deg";
+                        writer.WriteLine(commandWrite);
+                        writer.Flush();
+                        result = reader.ReadLine();
+                        splitValues = result.Split('\'');
+                        flightValue.Lat = Convert.ToDouble(splitValues[1]);
                     }
                 }
-                catch (System.Exception)
-                {
-
-                }
             }
+            catch (System.Exception)
+            {
+
+            }
+            return result;
+            
         }
     }
 }
