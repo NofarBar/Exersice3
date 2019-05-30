@@ -8,6 +8,7 @@ namespace Exersice3.Models
 {
     public class FlightValue
     {
+        private string[] fileValue;
         private double rudder;
         private double throttle;
         private double longitude;
@@ -63,6 +64,20 @@ namespace Exersice3.Models
             set
             {
                 this.fileName = value;
+
+            }
+        }
+        public string[] StringValue
+        {
+            get
+            {
+                string[] temp = fileValue;
+                this.fileValue = this.fileValue.Skip(4).ToArray();
+                return this.fileValue;
+            }
+            set
+            {
+                this.fileValue = value;
 
             }
         }

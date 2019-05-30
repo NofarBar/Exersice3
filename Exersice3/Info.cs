@@ -12,7 +12,7 @@ using System.Web.Mvc;
 
 namespace Exersice3
 {
-    public class Client
+    public class Info
     {
        
         private string ip;
@@ -20,18 +20,18 @@ namespace Exersice3
         private IPEndPoint ep;
         private TcpClient client;
         private bool isConnect = false;
-        private static Client instance = null;
+        private static Info instance = null;
         private Models.FlightValue flightValue;
-        private Client() {        
+        private Info() {        
             flightValue = new Models.FlightValue();
         }
-        public static Client Instance
+        public static Info Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new Client();
+                    instance = new Info();
                 }
                 return instance;
             }
