@@ -1,24 +1,12 @@
 ﻿
 @{
-    ViewBag.Title = "display";
+    ViewBag.Title = "save";
 }
 
 <div>
-    <img id="map" src="~/export-map-share.png" alt="map2"  hidden="hidden"/>
-    <canvas id="myCanvas" 
+    <img id="map" src="~/export-map-share.png" alt="map2" hidden="hidden" />
+    <canvas id="myCanvas"
             style="border:1px solid black;"></canvas>
-    <h2>Map Values</h2>
-    <table>
-        <tr>
-            <td>Lon:  </td>
-            <td><p type="text" id="lon" size="5"></p></td>
-        </tr>
-        <tr>
-            <td>Lat:  </td>
-            <td><p type="text" id="lat" size="5"></p></td>
-        </tr>
-    </table>
-
 </div>
 
 <script>
@@ -33,19 +21,26 @@
         var ctx = canvas.getContext("2d");
         ctx.translate(0, 0);
         ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height);
-        
     };
 </script>
 
 <script>
-    var IntervalTime = @Session["time"]* 1000
+    var IntervalTime = 1000 / @Session["time"];
+    var TimeOut = @Session["timeOut"] * 1000;
     var prevLon = null;
     var prevLat = null;
     var interval = null;
+    var toSave = null;
     myTimer = function () {
-        //alert(IntervalTime);
-        console.log("asdasdasd");
-        $.get("@Url.Action("GetValue")").done(function (xml) {
+        if (toSave) {
+            var url = "@Url.Action("saveValue")";
+
+        } else {
+            var url = "@Url.Action("GetValue")";
+            alert(toSave);
+
+        }
+        $.get(url).done(function (xml) {
             var xmlDoc = $.parseXML( xml ),
             $xml = $( xmlDoc ),
             lonValue = $xml.find("Lon").text();
@@ -59,20 +54,27 @@
             } else {
                 drawLine(prevLon, prevLat, lon, lat);
             }
-            alert("Lon"+lon+"Lat"+lat);
+           // alert("Lon"+lon+"Lat"+lat);
             prevLon = lon;
             prevLat = lat;
         });
     }
-     if (IntervalTime != 0) {
+    if (IntervalTime != 0) {
+        alert("SDdssfdf");
+        toSave = true;
         interval = setInterval(myTimer, IntervalTime);
+        setTimeout(() => {
+            clearInterval(interval); alert('stop'); toSave = false; interval = setInterval(myTimer, IntervalTime);
+        }, TimeOut);
+       
+       
      } else {
-        myTimer();
+         myTimer(false);
     }
 
 </script>
 <script>
-    drawPoint = (function (x,y) {
+    drawPoint = (function (x, y) {
         var canvas = document.getElementById("myCanvas");
         var img = document.getElementById("map");
         canvas.style.position = "absolute";
@@ -87,7 +89,7 @@
     });
 </script>
 <script>
-    drawLine = (function (prevX,prevY,x, y) {
+    drawLine = (function (prevX, prevY, x, y) {
         var canvas = document.getElementById("myCanvas");
         var img = document.getElementById("map");
         canvas.style.position = "absolute";
@@ -102,4 +104,3 @@
         ctx.closePath();
     });
 </script>
-

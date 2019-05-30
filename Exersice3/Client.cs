@@ -56,17 +56,18 @@ namespace Exersice3
         {
             this.ip = ip;
             this.port = port;
-            Console.WriteLine(this.ip);
-            Console.WriteLine(this.port);
+            ep = new IPEndPoint(IPAddress.Parse(this.ip), this.port);
+            client = new TcpClient();
+
             if (!isConnect)
             {
                 try
                 {
-                    ep = new IPEndPoint(IPAddress.Parse(this.ip), this.port);
-                    client = new TcpClient();
-                    client.Connect(ep);
-                    Console.WriteLine("Command - You are connected");
-                    isConnect = true;
+                    {
+                        client.Connect(ep);
+                        Console.WriteLine("Command - You are connected");
+                        isConnect = true;
+                    }
                 }
                 catch (System.Exception) { }
             }
@@ -87,17 +88,17 @@ namespace Exersice3
         }
 
         // The function sent values to flight gear
-        public string readData()
+        public void readData()
         {
             string result = "";
-            try
+            if (isConnection())
             {
-                using (NetworkStream stream = client.GetStream())
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream))
-                { // read from flight gear while connect
-                    while (isConnection())
-                    {
+                try
+                {
+                    NetworkStream stream = client.GetStream();
+                    StreamReader reader = new StreamReader(stream);
+                    StreamWriter writer = new StreamWriter(stream);
+
                         string commandWrite = "get /position/longitude-deg";
                         writer.WriteLine(commandWrite);
                         writer.Flush();
@@ -110,15 +111,46 @@ namespace Exersice3
                         result = reader.ReadLine();
                         splitValues = result.Split('\'');
                         flightValue.Lat = Convert.ToDouble(splitValues[1]);
-                    }
+
+                }
+                catch (System.Exception)
+                {
                 }
             }
-            catch (System.Exception)
-            {
-
-            }
-            return result;
-            
         }
+
+        public void readForSave()
+        {
+            string result = "";
+            if (isConnection())
+            {
+                try
+                {
+                    NetworkStream stream = client.GetStream();
+                    StreamReader reader = new StreamReader(stream);
+                    StreamWriter writer = new StreamWriter(stream);
+
+                    string commandWrite = "get /controls/flight/rudder";
+                    writer.WriteLine(commandWrite);
+                    writer.Flush();
+                    result = reader.ReadLine();
+                    string[] splitValues = result.Split('\'');
+                    flightValue.Rudder = Convert.ToDouble(splitValues[1]);
+                    commandWrite = "get /controls/engines/engine/throttle";
+                    writer.WriteLine(commandWrite);
+                    writer.Flush();
+                    result = reader.ReadLine();
+                    splitValues = result.Split('\'');
+                    flightValue.Lat = Convert.ToDouble(splitValues[1]);
+
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+
+        }
+
+
     }
 }
