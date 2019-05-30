@@ -14,7 +14,7 @@ namespace Exersice3
 {
     public class Info
     {
-       
+    
         private string ip;
         private int port;
         private IPEndPoint ep;
@@ -48,9 +48,8 @@ namespace Exersice3
                 this.flightValue = value;
             }
         }
-
-        public const string SCENARIO_FILE = "~/App_Data/{0}.txt";           // The Path of the Secnario
-
+        // The Path of the Secnario
+        public const string SCENARIO_FILE = "~/App_Data/{0}.txt";           
  
             public void connect(string ip, int port)
         {
@@ -129,7 +128,6 @@ namespace Exersice3
                     NetworkStream stream = client.GetStream();
                     StreamReader reader = new StreamReader(stream);
                     StreamWriter writer = new StreamWriter(stream);
-
                     string commandWrite = "get /controls/flight/rudder";
                     writer.WriteLine(commandWrite);
                     writer.Flush();
@@ -142,7 +140,6 @@ namespace Exersice3
                     result = reader.ReadLine();
                     splitValues = result.Split('\'');
                     flightValue.Lat = Convert.ToDouble(splitValues[1]);
-
                 }
                 catch (System.Exception)
                 {

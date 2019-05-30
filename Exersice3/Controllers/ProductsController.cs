@@ -13,24 +13,18 @@ namespace Exersice3.Controllers
 {
     public class ProductsController : Controller
     {
-
-        // 
-        // GET: /HelloWorld/
-
         public ActionResult Index()
         {
 
             return View();
         }
-
-        // 
-        // GET: /HelloWorld/Welcome/ 
+ 
         [HttpGet]
         public ActionResult display(string ip, int port, int time)
         {
-            // string txt = Request.Path;
             string[] isIp = ip.Split('.');
-            Info c = Info.Instance;            if (isIp.Length != 4)
+            Info c = Info.Instance;
+            if (isIp.Length != 4)
             {
                 Session["read"] = true;
                 Session["time"] = port;
@@ -61,8 +55,15 @@ namespace Exersice3.Controllers
             else
             {
                 string[] linesValue = info.flightValueP.StringValue;
-                info.flightValueP.Lat = Convert.ToDouble(linesValue[0]);
-                info.flightValueP.Lon = Convert.ToDouble(linesValue[1]);
+                if (linesValue.Length == 0|| linesValue[0] == "")
+                {
+                    return null;
+                }
+                string[] tempLine = linesValue[0].Split(',');
+                info.flightValueP.Lat = Convert.ToDouble(tempLine[0]);
+                info.flightValueP.Lon = Convert.ToDouble(tempLine[1]);
+                info.flightValueP.StringValue = info.flightValueP.StringValue.Skip(1).ToArray();
+
             }
             var emp = info.flightValueP;
             return ToXml(emp);
@@ -87,8 +88,10 @@ namespace Exersice3.Controllers
         [HttpGet]
         public ActionResult save(string ip, int port, int time, int timeOut, string name)
         {
-            string txt = Request.Path;            Info c = Info.Instance;
-            c.connect(ip, port);            Session["time"] = time;
+            string txt = Request.Path;
+            Info c = Info.Instance;
+            c.connect(ip, port);
+            Session["time"] = time;
             Session["timeOut"] = timeOut;
             c.flightValueP.FileName = name;
             return View();
@@ -108,25 +111,22 @@ namespace Exersice3.Controllers
         {
             FileStream stream;
             string path = System.Web.HttpContext.Current.Server.MapPath(String.Format(SCENARIO_FILE, fileName));
-            //string path = "/App_Data/" + fileName+".txt";
-            // if (!File.Exists(path))
             if (!System.IO.File.Exists(path))
             {
                 stream = System.IO.File.Open(path, FileMode.OpenOrCreate);
             }
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(path, true))
-            //   using (System.IO.StreamWriter file = System.IO.File.AppendText(path))
             {
                 Models.FlightValue flight = Info.Instance.flightValueP;
                 file.Write(flight.Lat + ",");
                 file.Write(flight.Lon + ",");
                 file.Write(flight.Rudder + ",");
                 file.WriteLine(flight.Throttle + ",");
+
             }
         }
         public void readFile(string fileName)
         {
-            FileStream stream;
             string path = System.Web.HttpContext.Current.Server.MapPath(String.Format(SCENARIO_FILE, fileName));
             string[] lines = System.IO.File.ReadAllLines(path);
             Info.Instance.flightValueP.StringValue = lines;

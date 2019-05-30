@@ -2,7 +2,18 @@
 @{
     ViewBag.Title = "save";
 }
+<style>
+    html, body {
+        width: 100%;
+        height: 100%
+    }
 
+    canvas {
+        height: 100%;
+        width: 100%;
+        overflow: hidden
+    }
+</style>
 <div>
     <img id="map" src="~/export-map-share.png" alt="map2" hidden="hidden" />
     <canvas id="myCanvas"
@@ -34,11 +45,8 @@
     myTimer = function () {
         if (toSave) {
             var url = "@Url.Action("saveValue")";
-
         } else {
             var url = "@Url.Action("GetValue")";
-            alert(toSave);
-
         }
         $.get(url).done(function (xml) {
             var xmlDoc = $.parseXML( xml ),
@@ -47,27 +55,23 @@
             latValue = $xml.find("Lat").text();
             var lon = parseFloat(lonValue)
             var lat = parseFloat(latValue)
-            lon = (lon + 180) * (window.innerWidth / 360); ///////////////////////////////////TODO
+            lon = (lon + 180) * (window.innerWidth / 360); 
             lat = (lat + 90) * (window.innerHeight / 180);
             if (prevLat == null || prevLon == null) {
                 drawPoint(lon, lat);
             } else {
                 drawLine(prevLon, prevLat, lon, lat);
             }
-           // alert("Lon"+lon+"Lat"+lat);
             prevLon = lon;
             prevLat = lat;
         });
     }
     if (IntervalTime != 0) {
-        alert("SDdssfdf");
         toSave = true;
         interval = setInterval(myTimer, IntervalTime);
         setTimeout(() => {
             clearInterval(interval); alert('stop'); toSave = false; interval = setInterval(myTimer, IntervalTime);
         }, TimeOut);
-       
-       
      } else {
          myTimer(false);
     }

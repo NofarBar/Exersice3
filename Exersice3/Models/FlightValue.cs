@@ -71,8 +71,6 @@ namespace Exersice3.Models
         {
             get
             {
-                string[] temp = fileValue;
-                this.fileValue = this.fileValue.Skip(4).ToArray();
                 return this.fileValue;
             }
             set
